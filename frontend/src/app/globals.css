@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+:root {
+  --radius: 1rem;
+  --background: #f5f5f7;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --muted: #64748b;
+  --border: #e5e7eb;
+  --primary: #6c3aea;
+  --primary-foreground: #ffffff;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --surface: #ffffff;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-geist-sans), sans-serif;
+  background: radial-gradient(circle at top, #ffffff 0%, #f5f5f7 45%, #efeff3 100%);
+  color: var(--foreground);
+}
+
+.mobile-shell {
+  width: 100%;
+  max-width: 430px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ios-card {
+  border-radius: 1.25rem;
+  border: 1px solid #eef1f5;
+  background: #ffffff;
+  box-shadow: 0 12px 30px -24px rgba(15, 23, 42, 0.5);
+}
+
+.primary-btn {
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.primary-btn:hover {
+  transform: scale(1.02);
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  transform: none;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
