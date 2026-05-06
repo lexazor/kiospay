@@ -21,14 +21,14 @@ kiospay/
 
 ## 2. Prasyarat
 
-### 2.1 Untuk Local Development
+### Untuk Local Development
 
 - Node.js 20+ (LTS disarankan)
 - npm 10+
 - MySQL 8+
 - Git
 
-### 2.2 Untuk Deploy VPS
+### Untuk Deploy VPS
 
 - VPS Ubuntu 22.04/24.04
 - Domain frontend, contoh: `kiospay.com`
@@ -40,14 +40,14 @@ kiospay/
 
 ## 3. Instalasi Lokal (Development)
 
-### 3.1 Clone Repository
+### Clone Repository
 
 ```bash
 git clone https://github.com/lexazor/kiospay.git
 cd kiospay
 ```
 
-### 3.2 Setup Backend
+### Setup Backend
 
 ```bash
 cd backend
@@ -61,7 +61,7 @@ npm run start:dev
 
 Backend berjalan di `http://localhost:4000`.
 
-### 3.3 Setup Frontend
+### Setup Frontend
 
 Jalankan di terminal baru:
 
@@ -78,7 +78,7 @@ Frontend berjalan di `http://localhost:3000`.
 
 ## 4. Contoh ENV Lengkap
 
-### 4.1 Backend Development (`backend/.env`)
+### Backend Development (`backend/.env`)
 
 ```env
 # Database
@@ -96,13 +96,13 @@ CORS_ORIGIN="http://localhost:3000"
 UPLOADS_DIR="public/uploads"
 ```
 
-### 4.2 Frontend Development (`frontend/.env`)
+### Frontend Development (`frontend/.env`)
 
 ```env
 NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
 ```
 
-### 4.3 Backend Production (`backend/.env`)
+### Backend Production (`backend/.env`)
 
 ```env
 DATABASE_URL="mysql://kiospay_user:PASSWORD_DB@127.0.0.1:3306/kiospay"
@@ -115,7 +115,7 @@ CORS_ORIGIN="https://domainkamu.com"
 UPLOADS_DIR="public/uploads"
 ```
 
-### 4.4 Frontend Production (`frontend/.env`)
+### Frontend Production (`frontend/.env`)
 
 ```env
 NEXT_PUBLIC_BACKEND_URL=https://api.domainkamu.com
@@ -124,6 +124,8 @@ NEXT_PUBLIC_BACKEND_URL=https://api.domainkamu.com
 ---
 
 ## 5. Deploy Otomatis aaPanel + PM2 (Paling Cepat)
+
+Gunakan metode ini jika ingin setup cepat.
 
 Script installer tersedia di:
 
@@ -155,7 +157,10 @@ Yang dilakukan script:
 
 ## 6. Deploy Manual aaPanel + PM2 (Step by Step)
 
-### 6.1 Setup DNS Domain
+Gunakan metode ini jika ingin kontrol penuh setiap langkah.
+Jangan jalankan metode `5` dan `6` sekaligus dalam satu server yang sama.
+
+### Langkah 1: Setup DNS Domain
 
 Di panel DNS domain:
 
@@ -169,7 +174,7 @@ nslookup domainkamu.com
 nslookup api.domainkamu.com
 ```
 
-### 6.2 Install aaPanel
+### Langkah 2: Install aaPanel
 
 SSH ke VPS:
 
@@ -197,7 +202,7 @@ Masuk aaPanel lalu install:
 2. MySQL 8.x
 3. phpMyAdmin (opsional)
 
-### 6.3 Buat Database di aaPanel
+### Langkah 3: Buat Database di aaPanel
 
 Menu `Databases` -> `Add DB`:
 
@@ -208,7 +213,7 @@ Menu `Databases` -> `Add DB`:
 
 Simpan kredensialnya untuk `.env` backend.
 
-### 6.4 Clone Project di VPS
+### Langkah 4: Clone Project di VPS
 
 ```bash
 cd /www/wwwroot
@@ -216,7 +221,7 @@ git clone https://github.com/lexazor/kiospay.git
 cd kiospay
 ```
 
-### 6.5 Install Node.js + PM2
+### Langkah 5: Install Node.js + PM2
 
 ```bash
 apt-get update -y
@@ -234,7 +239,7 @@ npm -v
 pm2 -v
 ```
 
-### 6.6 Install Dependency Project
+### Langkah 6: Install Dependency Project
 
 ```bash
 cd /www/wwwroot/kiospay/backend
@@ -244,7 +249,7 @@ cd /www/wwwroot/kiospay/frontend
 npm install
 ```
 
-### 6.7 Setup File ENV Production
+### Langkah 7: Setup File ENV Production
 
 Backend:
 
@@ -264,7 +269,7 @@ nano .env
 
 Isi sesuai contoh pada bagian `4.3` dan `4.4`.
 
-### 6.8 Prisma Generate + Sinkron Database
+### Langkah 8: Prisma Generate + Sinkron Database
 
 ```bash
 cd /www/wwwroot/kiospay/backend
@@ -289,7 +294,7 @@ Opsional seed admin:
 npm run seed
 ```
 
-### 6.9 Build Backend + Frontend
+### Langkah 9: Build Backend + Frontend
 
 ```bash
 cd /www/wwwroot/kiospay/backend
@@ -299,7 +304,7 @@ cd /www/wwwroot/kiospay/frontend
 npm run build
 ```
 
-### 6.10 Jalankan Service Dengan PM2
+### Langkah 10: Jalankan Service Dengan PM2
 
 Start backend:
 
@@ -324,7 +329,7 @@ pm2 startup
 
 Jalankan command lanjutan yang ditampilkan oleh output `pm2 startup`.
 
-### 6.11 Setup Reverse Proxy di aaPanel
+### Langkah 11: Setup Reverse Proxy di aaPanel
 
 Buat 2 website:
 
@@ -336,7 +341,7 @@ Atur reverse proxy:
 - `domainkamu.com` -> `http://127.0.0.1:3000`
 - `api.domainkamu.com` -> `http://127.0.0.1:4000`
 
-### 6.12 Aktifkan SSL Let's Encrypt
+### Langkah 12: Aktifkan SSL Let's Encrypt
 
 Untuk masing-masing domain:
 
@@ -345,7 +350,7 @@ Untuk masing-masing domain:
 3. Issue certificate
 4. Aktifkan `Force HTTPS`
 
-### 6.13 Verifikasi
+### Langkah 13: Verifikasi
 
 ```bash
 pm2 status
@@ -362,14 +367,14 @@ Test browser:
 
 ## 7. Operasional PM2
 
-### 7.1 Restart Service
+### Restart Service
 
 ```bash
 pm2 restart kiospay-backend
 pm2 restart kiospay-frontend
 ```
 
-### 7.2 Stop/Start Service
+### Stop/Start Service
 
 ```bash
 pm2 stop kiospay-backend
@@ -379,7 +384,7 @@ pm2 start kiospay-backend
 pm2 start kiospay-frontend
 ```
 
-### 7.3 Lihat Log
+### Lihat Log
 
 ```bash
 pm2 logs kiospay-backend
@@ -424,7 +429,7 @@ pm2 restart kiospay-frontend
 
 ## 9. Troubleshooting
 
-### 9.1 502 Bad Gateway
+### 502 Bad Gateway
 
 ```bash
 pm2 status
@@ -437,7 +442,7 @@ Pastikan target reverse proxy benar:
 - frontend -> `127.0.0.1:3000`
 - backend -> `127.0.0.1:4000`
 
-### 9.2 CORS Error
+### CORS Error
 
 Cek `backend/.env`:
 
@@ -451,7 +456,7 @@ Lalu:
 pm2 restart kiospay-backend
 ```
 
-### 9.3 Prisma / MySQL Tidak Terkoneksi
+### Prisma / MySQL Tidak Terkoneksi
 
 Cek `DATABASE_URL`, status MySQL, dan hak akses user DB.
 
@@ -462,14 +467,14 @@ cd /www/wwwroot/kiospay/backend
 npx prisma db pull
 ```
 
-### 9.4 Aplikasi Tidak Auto Start Setelah Reboot
+### Aplikasi Tidak Auto Start Setelah Reboot
 
 ```bash
 pm2 save
 pm2 startup
 ```
 
-### 9.5 Upload Bukti Transfer Tidak Muncul
+### Upload Bukti Transfer Tidak Muncul
 
 Periksa:
 
