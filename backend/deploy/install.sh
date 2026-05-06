@@ -109,7 +109,7 @@ print_header "6/8 Prisma generate + sync database"
 cd "${BACKEND_DIR}"
 npm run prisma:generate
 
-if [[ -d "${BACKEND_DIR}/prisma/migrations" ]] && [[ "$(find "${BACKEND_DIR}/prisma/migrations" -mindepth 1 -maxdepth 1 | wc -l)" -gt 0 ]]; then
+if [[ -d "${BACKEND_DIR}/prisma/migrations" ]] && [[ "$(find "${BACKEND_DIR}/prisma/migrations" -mindepth 1 -maxdepth 1 -type d | wc -l)" -gt 0 ]]; then
   echo "[INFO] Migrations ditemukan, jalankan prisma migrate deploy..."
   npm run prisma:deploy
 else
@@ -138,7 +138,8 @@ module.exports = {
     {
       name: "kiospay-backend",
       cwd: "${BACKEND_DIR}",
-      script: "dist/main.js",
+      script: "npm",
+      args: "run start:prod",
       exec_mode: "fork",
       instances: 1,
       env: {

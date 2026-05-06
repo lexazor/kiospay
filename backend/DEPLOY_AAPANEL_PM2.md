@@ -255,7 +255,7 @@ Lalu update dependency + build:
 cd backend
 npm install
 npm run prisma:generate
-npm run prisma:deploy
+if [ -d prisma/migrations ] && [ "$(ls -A prisma/migrations 2>/dev/null)" ]; then npm run prisma:deploy; else npx prisma db push; fi
 npm run build
 
 cd ../frontend

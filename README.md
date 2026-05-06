@@ -276,7 +276,7 @@ cd /www/wwwroot/kiospay/backend
 npm run prisma:generate
 ```
 
-Jika migration belum ada:
+Jika migration belum ada (fresh project tanpa folder `prisma/migrations`):
 
 ```bash
 npx prisma db push
@@ -287,6 +287,8 @@ Jika migration sudah ada:
 ```bash
 npm run prisma:deploy
 ```
+
+Jangan jalankan `db push` dan `prisma:deploy` sekaligus pada database yang sama.
 
 Opsional seed admin:
 
@@ -310,7 +312,7 @@ Start backend:
 
 ```bash
 cd /www/wwwroot/kiospay/backend
-pm2 start dist/main.js --name kiospay-backend
+pm2 start npm --name kiospay-backend -- run start:prod
 ```
 
 Start frontend:
@@ -406,7 +408,7 @@ Update backend:
 cd backend
 npm install
 npm run prisma:generate
-npm run prisma:deploy
+if [ -d prisma/migrations ] && [ "$(ls -A prisma/migrations 2>/dev/null)" ]; then npm run prisma:deploy; else npx prisma db push; fi
 npm run build
 ```
 
