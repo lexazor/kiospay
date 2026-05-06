@@ -284,6 +284,7 @@ JWT_ACCESS_EXPIRES_IN="15m"
 JWT_REFRESH_EXPIRES_IN="30d"
 PORT=4000
 CORS_ORIGIN="https://kiospay.com"
+COOKIE_DOMAIN="kiospay.com"
 UPLOADS_DIR="public/uploads"
 ```
 

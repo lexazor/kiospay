@@ -64,6 +64,8 @@ print_header "5/8 Setup environment (.env)"
 
 read -r -p "Domain frontend (contoh: kiospay.com): " FRONTEND_DOMAIN
 read -r -p "Domain backend/API (contoh: api.kiospay.com): " BACKEND_DOMAIN
+read -r -p "Cookie domain untuk share login lintas subdomain [${FRONTEND_DOMAIN}]: " COOKIE_DOMAIN
+COOKIE_DOMAIN="${COOKIE_DOMAIN:-${FRONTEND_DOMAIN}}"
 read -r -p "MySQL host [127.0.0.1]: " MYSQL_HOST
 MYSQL_HOST="${MYSQL_HOST:-127.0.0.1}"
 read -r -p "MySQL port [3306]: " MYSQL_PORT
@@ -96,6 +98,7 @@ JWT_REFRESH_EXPIRES_IN="30d"
 
 PORT=${BACKEND_PORT}
 CORS_ORIGIN="https://${FRONTEND_DOMAIN}"
+COOKIE_DOMAIN="${COOKIE_DOMAIN}"
 UPLOADS_DIR="public/uploads"
 EOF
 

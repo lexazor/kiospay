@@ -112,11 +112,13 @@ export class AuthController {
 
   private setAuthCookies(response: Response, accessToken: string, refreshToken: string) {
     const secure = process.env.NODE_ENV === 'production';
+    const cookieDomain = this.resolveCookieDomain();
 
     response.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
       httpOnly: true,
       sameSite: 'lax',
       secure,
+      domain: cookieDomain,
       path: '/',
       maxAge: 15 * 60 * 1000,
     });
@@ -125,13 +127,25 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'lax',
       secure,
+      domain: cookieDomain,
       path: '/',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
   }
 
   private clearAuthCookies(response: Response) {
-    response.clearCookie(ACCESS_TOKEN_COOKIE, { path: '/' });
-    response.clearCookie(REFRESH_TOKEN_COOKIE, { path: '/' });
+    const cookieDomain = this.resolveCookieDomain();
+    response.clearCookie(ACCESS_TOKEN_COOKIE, { path: '/', domain: cookieDomain });
+    response.clearCookie(REFRESH_TOKEN_COOKIE, { path: '/', domain: cookieDomain });
+  }
+
+  private resolveCookieDomain() {
+    const raw = process.env.COOKIE_DOMAIN?.trim();
+    if (!raw) {
+      return undefined;
+    }
+
+    // Accept either "example.com" or "https://example.com" and normalize to host only.
+    return raw.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
   }
 }

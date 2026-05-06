@@ -112,6 +112,7 @@ JWT_ACCESS_EXPIRES_IN="15m"
 JWT_REFRESH_EXPIRES_IN="30d"
 PORT=4000
 CORS_ORIGIN="https://domainkamu.com"
+COOKIE_DOMAIN="domainkamu.com"
 UPLOADS_DIR="public/uploads"
 ```
 
@@ -450,6 +451,7 @@ Cek `backend/.env`:
 
 ```env
 CORS_ORIGIN="https://domainkamu.com"
+COOKIE_DOMAIN="domainkamu.com"
 ```
 
 Lalu:
