@@ -3,6 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -57,8 +58,12 @@ export class AuthService {
 
     await this.usersService.validatePassword(user, payload.password);
 
-    // Login selalu reset status pin verification sampai user verifikasi PIN ulang.
-    const tokenPack = await this.createSession(user.id, user.role, false);
+    const mustVerifyPin = this.mustVerifyPinOnLogin(user.role, Boolean(user.pinHash));
+    const tokenPack = await this.createSession(
+      user.id,
+      user.role,
+      !mustVerifyPin,
+    );
 
     return {
       user: {
@@ -79,16 +84,23 @@ export class AuthService {
       throw new BadRequestException('Konfirmasi PIN tidak sesuai.');
     }
 
-    await this.usersService.setupPin(userId, pin);
-
     const user = await this.usersService.ensureActiveUser(userId);
+    if (user.role === UserRole.ADMIN) {
+      throw new BadRequestException('Admin tidak menggunakan PIN.');
+    }
+
+    await this.usersService.setupPin(user.id, pin);
+
     return this.rotateAfterPinVerified(user.id, user.role);
   }
 
   async verifyPin(userId: string, pin: string) {
-    await this.usersService.verifyUserPin(userId, pin);
-
     const user = await this.usersService.ensureActiveUser(userId);
+    if (user.role === UserRole.ADMIN) {
+      throw new BadRequestException('Admin tidak menggunakan PIN.');
+    }
+
+    await this.usersService.verifyUserPin(user.id, pin);
     return this.rotateAfterPinVerified(user.id, user.role);
   }
 
@@ -107,19 +119,25 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token tidak valid.');
     }
 
-    const tokenRecord = await this.prisma.refreshToken.findFirst({
-      where: {
-        userId: payload.sub,
-        revokedAt: null,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+    const tokenRecord = await this.prisma.refreshToken.findUnique({
+      where: { id: payload.sessionId },
     });
 
     if (!tokenRecord) {
       throw new UnauthorizedException('Session tidak ditemukan.');
     }
+
+    if (tokenRecord.userId !== payload.sub || tokenRecord.revokedAt) {
+      throw new UnauthorizedException('Session tidak valid.');
+    }
+
+    const user = await this.usersService.ensureActiveUser(payload.sub);
+    if (user.role !== payload.role) {
+      throw new UnauthorizedException('Role session berubah.');
+    }
+
+    const shouldPinBeVerified =
+      user.role === UserRole.ADMIN || Boolean(payload.pinVerified);
 
     const matches = await bcrypt.compare(refreshToken, tokenRecord.tokenHash);
     if (!matches) {
@@ -135,7 +153,7 @@ export class AuthService {
       data: { revokedAt: new Date() },
     });
 
-    return this.createSession(payload.sub, payload.role, payload.pinVerified);
+    return this.createSession(user.id, user.role, shouldPinBeVerified);
   }
 
   async logout(refreshToken: string | undefined) {
@@ -148,20 +166,14 @@ export class AuthService {
         secret: process.env.JWT_REFRESH_SECRET,
       });
 
-      const latest = await this.prisma.refreshToken.findFirst({
+      await this.prisma.refreshToken.updateMany({
         where: {
+          id: payload.sessionId,
           userId: payload.sub,
           revokedAt: null,
         },
-        orderBy: { createdAt: 'desc' },
+        data: { revokedAt: new Date() },
       });
-
-      if (latest) {
-        await this.prisma.refreshToken.update({
-          where: { id: latest.id },
-          data: { revokedAt: new Date() },
-        });
-      }
     } catch {
       return { success: true };
     }
@@ -179,11 +191,13 @@ export class AuthService {
   }
 
   private async createSession(userId: string, role: UserRole, pinVerified: boolean) {
+    const sessionId = randomUUID();
     const accessToken = await this.jwtService.signAsync<JwtPayload>(
       {
         sub: userId,
         role,
         pinVerified,
+        sessionId,
       },
       {
         secret: process.env.JWT_ACCESS_SECRET,
@@ -196,6 +210,7 @@ export class AuthService {
         sub: userId,
         role,
         pinVerified,
+        sessionId,
       },
       {
         secret: process.env.JWT_REFRESH_SECRET,
@@ -210,6 +225,7 @@ export class AuthService {
 
     await this.prisma.refreshToken.create({
       data: {
+        id: sessionId,
         userId,
         tokenHash: refreshTokenHash,
         expiresAt,
@@ -241,5 +257,9 @@ export class AuthService {
     };
 
     return new Date(Date.now() + value * multiplierMap[unit]);
+  }
+
+  private mustVerifyPinOnLogin(role: UserRole, hasPin: boolean) {
+    return role === UserRole.USER && hasPin;
   }
 }

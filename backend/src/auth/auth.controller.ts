@@ -8,7 +8,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import type { Request, Response } from 'express';
+import type { CookieOptions, Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -17,6 +17,8 @@ import { VerifyPinDto } from './dto/verify-pin.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import {
   ACCESS_TOKEN_COOKIE,
+  LEGACY_ACCESS_TOKEN_COOKIE,
+  LEGACY_REFRESH_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
 } from '../common/utils/cookie.util';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -111,32 +113,44 @@ export class AuthController {
   }
 
   private setAuthCookies(response: Response, accessToken: string, refreshToken: string) {
-    const secure = process.env.NODE_ENV === 'production';
-    const cookieDomain = this.resolveCookieDomain();
+    const cookieOptions = this.resolveCookieOptions();
 
     response.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
+      ...cookieOptions,
       httpOnly: true,
-      sameSite: 'lax',
-      secure,
-      domain: cookieDomain,
-      path: '/',
       maxAge: 15 * 60 * 1000,
     });
 
     response.cookie(REFRESH_TOKEN_COOKIE, refreshToken, {
+      ...cookieOptions,
       httpOnly: true,
-      sameSite: 'lax',
-      secure,
-      domain: cookieDomain,
-      path: '/',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
   }
 
   private clearAuthCookies(response: Response) {
-    const cookieDomain = this.resolveCookieDomain();
-    response.clearCookie(ACCESS_TOKEN_COOKIE, { path: '/', domain: cookieDomain });
-    response.clearCookie(REFRESH_TOKEN_COOKIE, { path: '/', domain: cookieDomain });
+    const cookieOptions = this.resolveCookieOptions();
+    response.clearCookie(ACCESS_TOKEN_COOKIE, cookieOptions);
+    response.clearCookie(REFRESH_TOKEN_COOKIE, cookieOptions);
+
+    // Cleanup legacy cookie names to prevent mixed-session behavior.
+    response.clearCookie(LEGACY_ACCESS_TOKEN_COOKIE, cookieOptions);
+    response.clearCookie(LEGACY_REFRESH_TOKEN_COOKIE, cookieOptions);
+    response.clearCookie(ACCESS_TOKEN_COOKIE, { path: '/' });
+    response.clearCookie(REFRESH_TOKEN_COOKIE, { path: '/' });
+    response.clearCookie(LEGACY_ACCESS_TOKEN_COOKIE, { path: '/' });
+    response.clearCookie(LEGACY_REFRESH_TOKEN_COOKIE, { path: '/' });
+  }
+
+  private resolveCookieOptions(): CookieOptions {
+    return {
+      domain: this.resolveCookieDomain(),
+      path: '/',
+      sameSite: 'lax',
+      secure:
+        process.env.NODE_ENV === 'production' ||
+        (process.env.CORS_ORIGIN ?? '').startsWith('https://'),
+    };
   }
 
   private resolveCookieDomain() {

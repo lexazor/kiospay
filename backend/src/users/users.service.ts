@@ -97,6 +97,9 @@ export class UsersService {
 
   async verifyUserPin(userId: string, pin: string) {
     const user = await this.ensureActiveUser(userId);
+    if (user.role === UserRole.ADMIN) {
+      throw new BadRequestException('Admin tidak menggunakan PIN.');
+    }
 
     if (!user.pinHash) {
       throw new BadRequestException('PIN belum dibuat.');
@@ -112,6 +115,9 @@ export class UsersService {
 
   async setupPin(userId: string, pin: string) {
     const user = await this.ensureActiveUser(userId);
+    if (user.role === UserRole.ADMIN) {
+      throw new BadRequestException('Admin tidak menggunakan PIN.');
+    }
 
     if (user.pinHash) {
       throw new BadRequestException('PIN sudah pernah diset.');
@@ -131,6 +137,9 @@ export class UsersService {
 
   async changePin(userId: string, oldPin: string, newPin: string) {
     const user = await this.ensureActiveUser(userId);
+    if (user.role === UserRole.ADMIN) {
+      throw new BadRequestException('Admin tidak menggunakan PIN.');
+    }
 
     if (!user.pinHash) {
       throw new BadRequestException('PIN belum dibuat.');

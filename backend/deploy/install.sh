@@ -107,6 +107,7 @@ NEXT_PUBLIC_BACKEND_URL=https://${BACKEND_DOMAIN}
 EOF
 
 echo "[INFO] File .env backend dan frontend sudah dibuat."
+echo "[INFO] Cookie auth memakai nama v2 (kiospay_at_v2, kiospay_rt_v2)."
 
 print_header "6/8 Prisma generate + sync database"
 cd "${BACKEND_DIR}"

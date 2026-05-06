@@ -93,6 +93,7 @@ JWT_REFRESH_EXPIRES_IN="30d"
 # App
 PORT=4000
 CORS_ORIGIN="http://localhost:3000"
+COOKIE_DOMAIN=""
 UPLOADS_DIR="public/uploads"
 ```
 
@@ -121,6 +122,10 @@ UPLOADS_DIR="public/uploads"
 ```env
 NEXT_PUBLIC_BACKEND_URL=https://api.domainkamu.com
 ```
+
+Catatan:
+- Cookie auth terbaru menggunakan `kiospay_at_v2` dan `kiospay_rt_v2`.
+- Jika browser pernah menyimpan cookie lama (`kiospay_at` / `kiospay_rt`), lakukan logout lalu hapus cookie lama agar sesi tidak bentrok.
 
 ---
 

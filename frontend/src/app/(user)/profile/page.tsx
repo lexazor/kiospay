@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import {
   History,
   KeyRound,
@@ -26,8 +25,6 @@ const menus = [
 ];
 
 export default function ProfilePage() {
-  const router = useRouter();
-
   const meQuery = useQuery({
     queryKey: ['me-profile'],
     queryFn: () => api.get<SessionUser>('/users/me'),
@@ -37,9 +34,12 @@ export default function ProfilePage() {
   const initials = `${me?.fullName?.[0] ?? 'U'}${me?.fullName?.split(' ')[1]?.[0] ?? ''}`;
 
   const logout = async () => {
-    await api.post('/auth/logout');
-    toast.success('Logout berhasil.');
-    router.push('/login');
+    try {
+      await api.post('/auth/logout');
+      toast.success('Logout berhasil.');
+    } finally {
+      window.location.href = '/login';
+    }
   };
 
   return (

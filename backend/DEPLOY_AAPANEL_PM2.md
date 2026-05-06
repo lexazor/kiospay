@@ -294,6 +294,10 @@ UPLOADS_DIR="public/uploads"
 NEXT_PUBLIC_BACKEND_URL=https://api.kiospay.com
 ```
 
+Catatan:
+- Cookie auth terbaru memakai `kiospay_at_v2` dan `kiospay_rt_v2`.
+- Setelah update dari versi lama, logout semua akun lalu hapus cookie lama (`kiospay_at` / `kiospay_rt`) di browser user.
+
 ## 15. Troubleshooting Paling Umum
 
 ### A. 502 Bad Gateway di domain

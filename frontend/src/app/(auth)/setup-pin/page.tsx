@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { KeyRound } from 'lucide-react';
 import { api, ApiError } from '@/lib/api';
@@ -11,7 +11,6 @@ import { PinInput } from '@/components/ui/pin-input';
 import { toast } from 'sonner';
 
 function SetupPinContent() {
-  const router = useRouter();
   const params = useSearchParams();
   const mode = useMemo(() => params.get('mode') || 'create', [params]);
   const verifyOnly = mode === 'verify';
@@ -32,7 +31,7 @@ function SetupPinContent() {
 
         await api.post('/auth/verify-pin', { pin });
         toast.success('PIN valid. Selamat datang!');
-        router.push('/dashboard');
+        window.location.href = '/dashboard';
         return;
       }
 
@@ -48,7 +47,7 @@ function SetupPinContent() {
 
       await api.post('/auth/setup-pin', { pin, confirmPin });
       toast.success('PIN berhasil dibuat.');
-      router.push('/dashboard');
+      window.location.href = '/dashboard';
     } catch (error) {
       toast.error(error instanceof ApiError ? error.message : 'Gagal memproses PIN.');
     } finally {

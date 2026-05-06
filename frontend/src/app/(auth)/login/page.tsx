@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { UserRound } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -37,7 +36,6 @@ type LoginForm = z.infer<typeof loginSchema>;
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [loadingRegister, setLoadingRegister] = useState(false);
 
@@ -63,11 +61,16 @@ export default function LoginPage() {
   const handleLogin = loginForm.handleSubmit(async (values) => {
     try {
       setLoadingLogin(true);
-      const response = await api.post<{ user: { hasPin: boolean } }>('/auth/login', values);
-      if (response.user.hasPin) {
-        router.push('/setup-pin?mode=verify');
+      const response = await api.post<{ user: { hasPin: boolean; role: 'USER' | 'ADMIN' } }>(
+        '/auth/login',
+        values,
+      );
+      if (response.user.role === 'ADMIN') {
+        window.location.href = '/admin/dashboard';
+      } else if (response.user.hasPin) {
+        window.location.href = '/setup-pin?mode=verify';
       } else {
-        router.push('/setup-pin?mode=create');
+        window.location.href = '/setup-pin?mode=create';
       }
       toast.success('Login berhasil.');
     } catch (error) {
@@ -87,7 +90,7 @@ export default function LoginPage() {
         password: values.password,
       });
       toast.success('Register berhasil, lanjut setup PIN.');
-      router.push('/setup-pin?mode=create');
+      window.location.href = '/setup-pin?mode=create';
     } catch (error) {
       toast.error(error instanceof ApiError ? error.message : 'Register gagal.');
     } finally {

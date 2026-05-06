@@ -28,7 +28,7 @@ function decodeJwtPayload(token: string) {
 }
 
 function readSession(request: NextRequest) {
-  const token = request.cookies.get('kiospay_at')?.value;
+  const token = request.cookies.get('kiospay_at_v2')?.value;
 
   if (!token) {
     return { authenticated: false, role: null as 'USER' | 'ADMIN' | null, pinVerified: false };
@@ -94,6 +94,14 @@ export function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith('/setup-pin')) {
+    if (session.role === 'ADMIN') {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+    }
+
+    if (session.pinVerified) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
     return NextResponse.next();
   }
 
